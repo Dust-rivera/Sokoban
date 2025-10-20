@@ -1,22 +1,60 @@
 package solver;
 
-public class SokoBot {
+import java.util.HashSet;
+import java.util.Set;
 
+public class SokoBot {
+  //Properties
+  private final Set<Point> goals = new HashSet<>();
+
+  //Methods
   public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData) {
-    /*
-     * YOU NEED TO REWRITE THE IMPLEMENTATION OF THIS METHOD TO MAKE THE BOT SMARTER
-     */
-    /*
-     * Default stupid behavior: Think (sleep) for 3 seconds, and then return a
-     * sequence
-     * that just moves left and right repeatedly.
-     */
-    try {
-      Thread.sleep(3000);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    return "lrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlr";
+    findGoals(mapData, itemsData, width, height);
+    State start = parseInitialState(itemsData, width, height);
   }
 
+
+  class Point{
+
+  }
+
+  class State{
+
+  }
+  //map out points of the goals
+  private void findGoals(char[][] mapData, char[][] itemsData, int width, int height){
+    for (int i = 0; i < height; i++){
+      for (int j = 0; j < width; j++){
+        if (mapData[i][j] == '.'){
+          goals.add(new Point(i, j));
+        }
+        if (itemsData[i][j] == '*' || itemsData[i][j] == '+'){
+          goals.add(new Point(i, j));
+        }
+      }
+    }
+  }
+
+  private State parseInitialState(char[][] itemsData, int width, int height){
+    int row = 0, col = 0; //player pos
+    Set<Point> box_pos = new HashSet<>();
+
+    for (int i = 0; i < height; i++){
+      for (int j = 0; j < width; j++){
+        if (itemsData[i][j] == '@' || itemsData[i][j] == '+'){ //Find player
+          row = i;
+          col = j;
+        }
+        if (itemsData[i][j] == '$' || itemsData[i][j] == '*'){
+          box_pos.add(new Point(i, j));
+        }
+      }
+    }
+
+    return new State(row, col, box_pos);
+  }
+
+  private boolean isWall(int row, int col, char[][] mapData){
+    return mapData[row][col] == '#'; //add bounds checking if needed
+  }
 }
