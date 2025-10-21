@@ -128,4 +128,92 @@ static class Move {
   private boolean isWall(int row, int col, char[][] mapData){
     return mapData[row][col] == '#'; //add bounds checking if needed
   }
+
+    //isDeadlocked is given a game state and determines if it's impossible to clear the stage by checking the surrounding 8 tiles on every box
+    //due to the nature of this it doesn't 'predict' if the game would reach a softlock, but rather detects if the game is already in a softlock
+    //in simple words it just checks if there's any boxes that can't be moved anymore and isn't on a goal
+    private boolean isDeadlocked(State s, char[][] mapData){
+        /*
+        For each box do deadlock check
+        - if box is on goal, do not deadlock check
+        - else use deadlock patterns
+         */
+        //For all boxes
+
+        for(Point b : s.boxes){
+            //only deadlock check if box is not on goal
+            if (!goals.contains(b)){
+                int bRow = b.row;
+                int bCol = b.col; // current position of box
+
+                //represent the 3x3 area around the box (including box)
+                //sRow should be  {bRow+1,bRow+1,bRow+1,bRow,bRow,bRow,bRow-1,bRow-1,bRow-1}
+                //sCol should be  {bCol-1,bCol,bCol+1,bCol-1,bCol,bCol+1,bCol-1,bCol,bCol+1}
+                //to get the coordinates of any area around the box, simply
+                int[] sRow = {bRow+1,bRow+1,bRow+1,bRow,bRow,bRow,bRow-1,bRow-1,bRow-1};
+                int[] sCol = {bCol-1,bCol,bCol+1,bCol-1,bCol,bCol+1,bCol-1,bCol,bCol+1};
+
+                //now have arrays that check if the surrounding boxes are walls or boxes!
+
+                boolean[] wallStatus = new boolean[9];
+                boolean[] boxStatus  = new boolean[9];
+
+                for(int i = 0; i<9;i++){
+                    wallStatus[i] = isWall(sRow[i],sCol[i],mapData);
+                    boxStatus[i]  = s.boxes.contains(new Point(sRow[i],sCol[i]));
+                }
+
+                //now we write every single deadlock pattern!
+                //Pattern 1: box cornered by 2 walls
+                if (
+                        (wallStatus[1] && wallStatus[5])
+                                || (wallStatus[5] && wallStatus[7])
+                                || (wallStatus[7] && wallStatus[3])
+                                || (wallStatus[3] && wallStatus[1])
+                )
+                    return true;
+                //Pattern 2: adjacent boxes that are both adjacent to walls
+                if(
+                        (boxStatus[1] && wallStatus[2] && wallStatus[5]) //normal
+                                || (boxStatus[1] && wallStatus[0] && wallStatus[3]) // flip
+                                || (boxStatus[5] && wallStatus[7] && wallStatus[8]) // normal (rotated right)
+                                || (boxStatus[5] && wallStatus[1] && wallStatus[2]) // flip
+                                || (boxStatus[7] && wallStatus[3] && wallStatus[6])
+                                || (boxStatus[7] && wallStatus[5] && wallStatus[8])
+                                || (boxStatus[3] && wallStatus[0] && wallStatus[1])
+                                || (boxStatus[3] && wallStatus[6] && wallStatus[7])
+                )
+                    return true;
+                //Pattern 3: 3 boxes around a wall in a corner (similar to a 2x2 deadlock)
+                if(
+                        (boxStatus[1] && boxStatus[5] && wallStatus[2])
+                                || (boxStatus[5] && boxStatus[7] && wallStatus[8])
+                                || (boxStatus[7] && boxStatus[3] && wallStatus[6])
+                                || (boxStatus[3] && boxStatus[1] && wallStatus[0])
+                )
+                    return true;
+                //Pattern 4: 4 boxes. simply just 4 boxes all adjacent to each other. I like calling this a 2x2 deadlock
+                if(
+                        (boxStatus[1] && boxStatus[2] && boxStatus[5] )
+                                || (boxStatus[5] && boxStatus[8] && boxStatus[7] )
+                                || (boxStatus[7] && boxStatus[6] && boxStatus[3] )
+                                || (boxStatus[3] && boxStatus[0] && boxStatus[1] )
+                )
+                    return true;
+                //Pattern 5: 2 adjacent boxes each adjacent to walls on opposite sides (similar to pattern 2)
+                if (
+                        (boxStatus[1] && wallStatus[2] && wallStatus[3])
+                                || (boxStatus[1] && wallStatus[0] && wallStatus[5])
+                                || (boxStatus[5] && wallStatus[1] && wallStatus[8])
+                                || (boxStatus[5] && wallStatus[2] && wallStatus[7])
+                                || (boxStatus[7] && wallStatus[3] && wallStatus[8])
+                                || (boxStatus[7] && wallStatus[5] && wallStatus[6])
+                                || (boxStatus[3] && wallStatus[1] && wallStatus[6])
+                                || (boxStatus[3] && wallStatus[0] && wallStatus[7])
+                )
+                    return true;
+            }
+        }
+        return false;
+    }
 }
