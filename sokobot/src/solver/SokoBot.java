@@ -3,6 +3,11 @@ package solver;
 import java.util.HashSet;
 import java.util.Set;
 
+import java.util.Objects;
+import java.util.ArrayDeque;
+import java.util.Queue;
+
+
 public class SokoBot {
   //Properties
   private final Set<Point> goals = new HashSet<>();
@@ -13,6 +18,9 @@ public class SokoBot {
   public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData) {
     findGoals(mapData, itemsData, width, height);
     State start = parseInitialState(itemsData, width, height);
+
+
+    return ""; // <-- place solution string here
   }
 
 
@@ -133,8 +141,8 @@ static class Move {
 
     // compute distance to nearest goal for every tile using bfs
     private void computeGoalDistances(char[][] mapData){
-        int height = map.length; //counts how many rows
-        int width = map[0].length; //counts how many columns
+        int height = mapData.length; //counts how many rows
+        int width = mapData[0].length; //counts how many columns
         distToGoal = new int[height][width];
 
         for (int i=0;i<height;i++){
@@ -155,11 +163,11 @@ static class Move {
                 {-1,0}, // up
                 {1,0},  // down
                 {0,-1}, // left
-                {0,1},  // right
-        }
+                {0,1}  // right
+        };
 
         //bfs search to find the distance from any tile to the goal. ignores boxes and treats them as tiles
-        while(!q.isEmpty()){
+        while(!boxQueue.isEmpty()){
             Point curr = boxQueue.poll(); //dequeue from the queue
             int dist = distToGoal[curr.row][curr.col];
 
