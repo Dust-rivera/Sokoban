@@ -6,6 +6,8 @@ import java.util.Set;
 public class SokoBot {
   //Properties
   private final Set<Point> goals = new HashSet<>();
+  private int[][] distToGoal;
+  private final int MAX_DIST = Integer.MAX_VALUE; // an integer used when initializing distances in distToGoal.
 
   //Methods
   public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData) {
@@ -129,10 +131,86 @@ static class Move {
     return mapData[row][col] == '#'; //add bounds checking if needed
   }
 
-    //isDeadlocked is given a game state and determines if it's impossible to clear the stage by checking the surrounding 8 tiles on every box
-    //due to the nature of this it doesn't 'predict' if the game would reach a softlock, but rather detects if the game is already in a softlock
-    //in simple words it just checks if there's any boxes that can't be moved anymore and isn't on a goal
-    private boolean isDeadlocked(State s, char[][] mapData){
+    // compute distance to nearest goal for every tile using bfs
+    private void computeGoalDistances(char[][] mapData){
+        int height = map.length; //counts how many rows
+        int width = map[0].length; //counts how many columns
+        distToGoal = new int[height][width];
+
+        for (int i=0;i<height;i++){
+            for(int j=0;j<width;j++){
+                distToGoal[i][j] = MAX_DIST;
+            }
+        }
+
+        Queue<Point> boxQueue = new ArrayDeque<>(); // A deque (double ended queue). used as a queue in these purposes
+
+        for (Point goal: goals){
+            distToGoal[goal.row][goal.col] = 0 ; // shortest distance from any goal to itself is 0
+            boxQueue.add(goal);  // add goals to queue for the bfs search later
+        }
+
+        int [][] moves = {
+                //{row,col}
+                {-1,0}, // up
+                {1,0},  // down
+                {0,-1}, // left
+                {0,1},  // right
+        }
+
+        //bfs search to find the distance from any tile to the goal. ignores boxes and treats them as tiles
+        while(!q.isEmpty()){
+            Point curr = boxQueue.poll(); //dequeue from the queue
+            int dist = distToGoal[curr.row][curr.col];
+
+            for(int[] move : moves){
+                int neighborRow = curr.row + move[0];
+                int neighborCol = curr.col + move[1];
+
+                //walls are not passable
+                if (isWall(neighborRow,neighborCol,mapData))
+                    continue;
+                //some dont have walls on borders, so as a safety measure dont explore past mapData array bounds
+                if (neighborRow < 0 || neighborCol < 0 || neighborRow >= height || neighborCol >= width )
+                    continue;
+                //if we have a shorter path to the neighbor, update the distances array and add this tile to the queue
+                if (distToGoal[neighborRow][neighborCol] > dist + 1){
+                    distToGoal[neighborRow][neighborCol] = dist + 1;
+                    boxQueue.add(new Point(neighborRow,neighborCol));
+                }
+            }
+        }
+    }
+    //now that we have information about the distances from each tile to their nearest goals we can write a simple heuristic based off that
+    //this heuristic is used to help the game choose which game state to work from, in other words we prioritize game states where boxes are close to goals
+    private int heuristic(State s){
+        int sum = 0;
+        for (Point box : s.boxes){
+            // similar logic to the computeGoalDistances function, but this time instead of ignoring out of bound entries we apply a penalty
+            if (box.row < 0
+                    || box.col < 0
+                    || box.row >= distToGoal.length
+                    || box.col >= distToGoal[0].length)
+                sum+=10000;
+            else{
+                int dist = distToGoal[box.row][box.col];
+                if (dist == MAX_DIST){
+                    sum+=10000; // also penalize if distToGoal is max_dist, as this also means the box cannot reach the goal.
+                }
+                else{
+                    sum+= dist; // else, the box can reach the goal!
+                }
+            }
+        }
+        return sum;
+    }
+
+
+
+  //isDeadlocked is given a game state and determines if it's impossible to clear the stage by checking the surrounding 8 tiles on every box
+  //due to the nature of this it doesn't 'predict' if the game would reach a softlock, but rather detects if the game is already in a softlock
+  //in simple words it just checks if there's any boxes that can't be moved anymore and isn't on a goal
+  private boolean isDeadlocked(State s, char[][] mapData){
         /*
         For each box do deadlock check
         - if box is on goal, do not deadlock check
