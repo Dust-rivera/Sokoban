@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import java.util.Objects;
+import java.util.PriorityQueue;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -16,12 +17,24 @@ public class SokoBot {
 
   //Methods
   public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData) {
-    findGoals(mapData, itemsData, width, height);
-    State start = parseInitialState(itemsData, width, height);
+		findGoals(mapData, itemsData, width, height);
 
+		//precompute the distance-to-goal for every tile
+		computeGoalDistances(mapData);
 
-    return ""; // <-- place solution string here
-  }
+		//parse the starting state (player + boxes)
+		State start = parseInitialState(itemsData, width, height);
+
+		//priority queue (GBFS) — expands the state with the lowest heuristic f
+    // and make a hash set to track visited states
+		PriorityQueue<Node> pq = new PriorityQueue<>();
+		pq.add(new Node(start, "", heuristic(start))); 
+		Set<State> visited = new HashSet<>();
+
+		// search loop
+		
+		return "";
+	}
 
 
   /** Represents a grid coordinate (row, col) */
@@ -302,4 +315,6 @@ static class Move {
         }
         return false;
     }
+
+    
 }
