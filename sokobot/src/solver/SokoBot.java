@@ -21,6 +21,7 @@ public class SokoBot {
 
 		//precompute the distance-to-goal for every tile
 		computeGoalDistances(mapData);
+    computeGoalDistancesAll(mapData); // mini
 
 		//parse the starting state (player + boxes)
 		State start = parseInitialState(itemsData, width, height);
@@ -32,8 +33,36 @@ public class SokoBot {
 		Set<State> visited = new HashSet<>();
 
 		// search loop
-		
-		return "";
+  while (!pq.isEmpty()) {
+    Node cur = pq.poll(); // pop best node (lowest heuristic)
+    if (isGoal(cur.state)) {
+        return cur.path; // success condition
+           }
+    if (!visited.add(cur.state)) continue;  // skip if already explored
+
+    for (Move mv : legalMoves(cur.state, mapData)) {
+        State nxt = applyMove(cur.state, mv); // simulate move
+
+
+        // Skip states that are either:
+        // - deadlocked (cannot be solved)
+        // - already visited
+        if (isFailed(nxt, mapData)) continue;
+        if (visited.contains(nxt)) continue;
+
+
+        // Compute heuristic and add to priority queue
+        int f2 = heuristic(nxt);
+        pq.add(new Node(nxt, cur.path + mv.symbol, f2));
+    }
+
+
+    if(diediedie){
+        return "";
+      }
+    }
+    // If no path found, return empty string 
+    return "";
 	}
 
 
@@ -83,17 +112,24 @@ public class SokoBot {
     }
   }
 
-  /** Node for the priority queue (GBFS frontier) */
-static class Node implements Comparable<Node> {
-    final State state;
-    final String path; // movement sequence so far
-    final int f;       // heuristic cost (lower = better)
+  /** Check if current state satisfies the goal condition (all boxes on goals) */
+  private boolean isGoal(State s) {
+      for (Point b : s.boxes)
+          if (!goals.contains(b)) return false;
+      return true;
+  }
 
-    Node(State s, String p, int f) {
-        this.state = s;
-        this.path = p;
-        this.f = f;
-    }
+  /** Node for the priority queue (GBFS frontier) */
+  static class Node implements Comparable<Node> {
+      final State state;
+      final String path; // movement sequence so far
+      final int f;       // heuristic cost (lower = better)
+
+      Node(State s, String p, int f) {
+          this.state = s;
+          this.path = p;
+          this.f = f;
+      }
 
     @Override
     public int compareTo(Node o) {
@@ -101,19 +137,19 @@ static class Node implements Comparable<Node> {
     }
 }
 
-  /** Represents a single movement (up, down, left, right, with/without push) */
-static class Move {
-    final int dRow, dCol; // movement offset
-    final char symbol;    // movement symbol ('u','d','l','r')
-    final boolean push;   // true if pushing a box
+    /** Represents a single movement (up, down, left, right, with/without push) */
+  static class Move {
+      final int dRow, dCol; // movement offset
+      final char symbol;    // movement symbol ('u','d','l','r')
+      final boolean push;   // true if pushing a box
 
-    Move(int dRow, int dCol, char sym, boolean push) {
-        this.dRow = dRow;
-        this.dCol = dCol;
-        this.symbol = sym;
-        this.push = push;
-    }
-}
+      Move(int dRow, int dCol, char sym, boolean push) {
+          this.dRow = dRow;
+          this.dCol = dCol;
+          this.symbol = sym;
+          this.push = push;
+      }
+  }
   
   //map out points of the goals
   private void findGoals(char[][] mapData, char[][] itemsData, int width, int height){
@@ -152,80 +188,88 @@ static class Move {
     return mapData[row][col] == '#'; //add bounds checking if needed
   }
 
-    // compute distance to nearest goal for every tile using bfs
-    private void computeGoalDistances(char[][] mapData){
-        int height = mapData.length; //counts how many rows
-        int width = mapData[0].length; //counts how many columns
-        distToGoal = new int[height][width];
+  // compute distance to nearest goal for every tile using bfs
+  private void computeGoalDistances(char[][] mapData){
+      int height = mapData.length; //counts how many rows
+      int width = mapData[0].length; //counts how many columns
+      distToGoal = new int[height][width];
 
-        for (int i=0;i<height;i++){
-            for(int j=0;j<width;j++){
-                distToGoal[i][j] = MAX_DIST;
-            }
-        }
+      for (int i=0;i<height;i++){
+          for(int j=0;j<width;j++){
+              distToGoal[i][j] = MAX_DIST;
+          }
+      }
 
-        Queue<Point> boxQueue = new ArrayDeque<>(); // A deque (double ended queue). used as a queue in these purposes
+      Queue<Point> boxQueue = new ArrayDeque<>(); // A deque (double ended queue). used as a queue in these purposes
 
-        for (Point goal: goals){
-            distToGoal[goal.row][goal.col] = 0 ; // shortest distance from any goal to itself is 0
-            boxQueue.add(goal);  // add goals to queue for the bfs search later
-        }
+      for (Point goal: goals){
+          distToGoal[goal.row][goal.col] = 0 ; // shortest distance from any goal to itself is 0
+          boxQueue.add(goal);  // add goals to queue for the bfs search later
+      }
 
-        int [][] moves = {
-                //{row,col}
-                {-1,0}, // up
-                {1,0},  // down
-                {0,-1}, // left
-                {0,1}  // right
-        };
+      int [][] moves = {
+              //{row,col}
+              {-1,0}, // up
+              {1,0},  // down
+              {0,-1}, // left
+              {0,1}  // right
+      };
 
-        //bfs search to find the distance from any tile to the goal. ignores boxes and treats them as tiles
-        while(!boxQueue.isEmpty()){
-            Point curr = boxQueue.poll(); //dequeue from the queue
-            int dist = distToGoal[curr.row][curr.col];
+      //bfs search to find the distance from any tile to the goal. ignores boxes and treats them as tiles
+      while(!boxQueue.isEmpty()){
+          Point curr = boxQueue.poll(); //dequeue from the queue
+          int dist = distToGoal[curr.row][curr.col];
 
-            for(int[] move : moves){
-                int neighborRow = curr.row + move[0];
-                int neighborCol = curr.col + move[1];
+          for(int[] move : moves){
+              int neighborRow = curr.row + move[0];
+              int neighborCol = curr.col + move[1];
 
-                //walls are not passable
-                if (isWall(neighborRow,neighborCol,mapData))
-                    continue;
-                //some dont have walls on borders, so as a safety measure dont explore past mapData array bounds
-                if (neighborRow < 0 || neighborCol < 0 || neighborRow >= height || neighborCol >= width )
-                    continue;
-                //if we have a shorter path to the neighbor, update the distances array and add this tile to the queue
-                if (distToGoal[neighborRow][neighborCol] > dist + 1){
-                    distToGoal[neighborRow][neighborCol] = dist + 1;
-                    boxQueue.add(new Point(neighborRow,neighborCol));
-                }
-            }
-        }
-    }
+              //walls are not passable
+              if (isWall(neighborRow,neighborCol,mapData))
+                  continue;
+              //some dont have walls on borders, so as a safety measure dont explore past mapData array bounds
+              if (neighborRow < 0 || neighborCol < 0 || neighborRow >= height || neighborCol >= width )
+                  continue;
+              //if we have a shorter path to the neighbor, update the distances array and add this tile to the queue
+              if (distToGoal[neighborRow][neighborCol] > dist + 1){
+                  distToGoal[neighborRow][neighborCol] = dist + 1;
+                  boxQueue.add(new Point(neighborRow,neighborCol));
+              }
+          }
+      }
+  }
     //now that we have information about the distances from each tile to their nearest goals we can write a simple heuristic based off that
     //this heuristic is used to help the game choose which game state to work from, in other words we prioritize game states where boxes are close to goals
-    private int heuristic(State s){
-        int sum = 0;
-        for (Point box : s.boxes){
-            // similar logic to the computeGoalDistances function, but this time instead of ignoring out of bound entries we apply a penalty
-            if (box.row < 0
-                    || box.col < 0
-                    || box.row >= distToGoal.length
-                    || box.col >= distToGoal[0].length)
-                sum+=10000;
-            else{
-                int dist = distToGoal[box.row][box.col];
-                if (dist == MAX_DIST){
-                    sum+=10000; // also penalize if distToGoal is max_dist, as this also means the box cannot reach the goal.
-                }
-                else{
-                    sum+= dist; // else, the box can reach the goal!
-                }
-            }
-        }
-        return sum;
-    }
+  private int heuristic(State s){
+      int sum = 0;
+      for (Point box : s.boxes){
+          // similar logic to the computeGoalDistances function, but this time instead of ignoring out of bound entries we apply a penalty
+          if (box.row < 0
+                  || box.col < 0
+                  || box.row >= distToGoal.length
+                  || box.col >= distToGoal[0].length)
+              sum+=10000;
+          else{
+              int dist = distToGoal[box.row][box.col];
+              if (dist == MAX_DIST){
+                  sum+=10000; // also penalize if distToGoal is max_dist, as this also means the box cannot reach the goal.
+              }
+              else{
+                  sum+= dist; // else, the box can reach the goal!
+              }
+          }
+      }
+      return sum;
+  }
 
+  private void computeGoalDistancesAll(char[][] map){
+  // function to be made
+        }
+
+
+
+
+    }
 
 
   //isDeadlocked is given a game state and determines if it's impossible to clear the stage by checking the surrounding 8 tiles on every box
