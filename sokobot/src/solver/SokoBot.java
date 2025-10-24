@@ -15,11 +15,11 @@ import java.util.ArrayList;
 public class SokoBot {
     //Properties
     private final Set<Point> goals = new HashSet<>();
-    private int[][] distToGoal;
-    private final int MAX_DIST = Integer.MAX_VALUE; // an integer used when initializing distances in distToGoal.
+    private int[][] pushesToGoal;
+    private final int MAX_DIST = Integer.MAX_VALUE; // an integer used when initializing distances in pushesToGoal.
 
     //RYAN'S ADD
-    private int[][][] pushesToGoal; //an array of distance (in number of pushes) to get to a goal. considers deadlocks
+    private int[][][] pushesToGoalAll; //an array of distance (in number of pushes) to get to a goal. considers deadlocks
     //stored values calculated using the second heuristic function
     private final Map<State, Integer> heuristicDP = new HashMap<>();
 
@@ -42,8 +42,8 @@ public class SokoBot {
         findGoals(mapData, itemsData, width, height);
 
         //do computations for the 2 heuristics
-        computeGoalDistances(mapData);
         computeGoalPushes(mapData);
+        computeGoalPushesAll(mapData);
 
         //get initial state for bfs queue
         State start = parseInitialState(itemsData, width, height);
@@ -197,63 +197,71 @@ public class SokoBot {
     }
 
 
-    // compute distance to nearest goal for every tile using bfs
-    private void computeGoalDistances(char[][] mapData){
+    // compute pushes to nearest goal for every tile using bfs
+    private void computeGoalPushes(char[][] mapData){
         int height = mapData.length; //counts how many rows
         int width = mapData[0].length; //counts how many columns
-        distToGoal = new int[height][width];
+        pushesToGoal = new int[height][width];
 
         for (int i=0;i<height;i++){
             for(int j=0;j<width;j++){
-                distToGoal[i][j] = MAX_DIST;
+                pushesToGoal[i][j] = MAX_DIST;
             }
         }
 
         Queue<Point> boxQueue = new ArrayDeque<>(); // A deque (double ended queue). used as a queue in these purposes
 
         for (Point goal: goals){
-            distToGoal[goal.row][goal.col] = 0 ; // shortest distance from any goal to itself is 0
+            pushesToGoal[goal.row][goal.col] = 0 ; // shortest distance from any goal to itself is 0
             boxQueue.add(goal);  // add goals to queue for the bfs search later
         }
 
         //bfs search to find the distance from any tile to the goal. ignores boxes and treats them as tiles
         while(!boxQueue.isEmpty()){
             Point curr = boxQueue.poll(); //dequeue from the queue
-            int dist = distToGoal[curr.row][curr.col];
+            int dist = pushesToGoal[curr.row][curr.col];
+            int row = curr.row;
+            int col = curr.col;
 
             for(int[] move : DIRECTIONS){
-                int neighborRow = curr.row + move[0];
-                int neighborCol = curr.col + move[1];
+                //we are simulating "reverse" pushes so we call where we expand from here as the  "previous" state
+                int prevBoxRow = row + move[0];
+                int prevBoxCol = col + move[1];
 
-                //walls are not passable
-                if (isWall(neighborRow,neighborCol,mapData))
-                    continue;
-                //some dont have walls on borders, so as a safety measure dont explore past mapData array bounds
-                if (neighborRow < 0 || neighborCol < 0 || neighborRow >= height || neighborCol >= width )
-                    continue;
-                //if we have a shorter path to the neighbor, update the distances array and add this tile to the queue
-                if (distToGoal[neighborRow][neighborCol] > dist + 1){
-                    distToGoal[neighborRow][neighborCol] = dist + 1;
-                    boxQueue.add(new Point(neighborRow,neighborCol));
+                //the player also need to be behind the box, so we call this the push spot
+                int pushSpotX = row + (2 * move[0]);
+                int pushSpotY = col + (2 * move[1]);
+
+
+                //is the box still within bounds?
+                if (prevBoxRow < 0 || prevBoxCol < 0 || prevBoxRow >= height || prevBoxCol >= width||mapData[prevBoxRow][prevBoxCol] == '#') continue;
+
+                //is the player still within bounds?
+                if (pushSpotX < 0 || pushSpotY < 0 || pushSpotX >= height || pushSpotY >= width || mapData[pushSpotX][pushSpotY] == '#') continue;
+
+                //acts similar to a minimum function, the distance we found is smaller, if yes, then update it
+                if (pushesToGoal[prevBoxRow][prevBoxCol] > dist + 1){
+                    pushesToGoal[prevBoxRow][prevBoxCol] = dist + 1;
+                    boxQueue.add(new Point(prevBoxRow,prevBoxCol));
                 }
             }
         }
     }
 
 
-    //this is similar to commputeGoalDistances but instead of distances it computes PUSHES it takes to get to a goal
-    private void computeGoalPushes(char[][] map) {
+    // compute pushes to every goal for every tile using bfs
+    private void computeGoalPushesAll(char[][] map) {
 
         int gcount = goals.size();
         int h = map.length;
         int w = map[0].length;
-        pushesToGoal = new int [gcount][h][w];
+        pushesToGoalAll = new int [gcount][h][w];
 
         //inital fill
         for(int i = 0; i <gcount ; i++){
             for(int j = 0; j <h ; j++){
                 for(int k = 0; k <w ; k++){
-                    pushesToGoal[i][j][k] = Integer.MAX_VALUE;
+                    pushesToGoalAll[i][j][k] = Integer.MAX_VALUE;
                 }
             }
         }
@@ -264,14 +272,14 @@ public class SokoBot {
             Queue<Point> q = new ArrayDeque<>(); // your queue!
 
             // costs nothing if the box is already at goal
-            pushesToGoal[currGoal][g.row][g.col] = 0;
+            pushesToGoalAll[currGoal][g.row][g.col] = 0;
             q.add(g);
 
             while (!q.isEmpty()) {
                 Point currentBoxPos = q.poll();
                 int row = currentBoxPos.row; // Row
                 int col = currentBoxPos.col; // Col
-                int dist = pushesToGoal[currGoal][row][col];
+                int dist = pushesToGoalAll[currGoal][row][col];
 
                 //try all directions
                 for (int[] dir : DIRECTIONS) {
@@ -292,8 +300,8 @@ public class SokoBot {
                     if (pushSpotX < 0 || pushSpotY < 0 || pushSpotX >= h || pushSpotY >= w || map[pushSpotX][pushSpotY] == '#') continue;
 
                     //acts similar to a minimum function, the distance we found is smaller, if yes, then update it
-                    if (pushesToGoal[currGoal][prevBoxRow][prevBoxCol] > dist + 1) {
-                        pushesToGoal[currGoal][prevBoxRow][prevBoxCol] = dist + 1;
+                    if (pushesToGoalAll[currGoal][prevBoxRow][prevBoxCol] > dist + 1) {
+                        pushesToGoalAll[currGoal][prevBoxRow][prevBoxCol] = dist + 1;
                         q.add(new Point(prevBoxRow, prevBoxCol));
                     }
                 }
@@ -432,13 +440,13 @@ public class SokoBot {
                 // similar logic to the computeGoalDistances function, but this time instead of ignoring out of bound entries we apply a penalty
                 if (box.row < 0
                         || box.col < 0
-                        || box.row >= distToGoal.length
-                        || box.col >= distToGoal[0].length)
+                        || box.row >= pushesToGoal.length
+                        || box.col >= pushesToGoal[0].length)
                     sum += 10000;
                 else {
-                    int dist = distToGoal[box.row][box.col];
+                    int dist = pushesToGoal[box.row][box.col];
                     if (dist == MAX_DIST) {
-                        sum += 10000; // also penalize if distToGoal is max_dist, as this also means the box cannot reach the goal.
+                        sum += 10000; // also penalize if pushesToGoal is max_dist, as this also means the box cannot reach the goal.
                     } else {
                         sum += dist; // else, the box can reach the goal!
                     }
@@ -454,7 +462,7 @@ public class SokoBot {
                 int bcol = b.col;
                 for (int j=0; j<goal_count;j++) {
 
-                    costMatrix[i][j] = pushesToGoal[j][brow][bcol];
+                    costMatrix[i][j] = pushesToGoalAll[j][brow][bcol];
 
                     if (costMatrix[i][j] == Integer.MAX_VALUE) {
                         costMatrix[i][j] = 100000; // cost matrix is related to heuristic, so this tells the algorithm to avoid states with boxes that cant reach goal
