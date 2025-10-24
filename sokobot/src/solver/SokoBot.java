@@ -238,58 +238,6 @@ public class SokoBot {
     }
 
 
-    //RYAN'S ADD
-    /*
-    private void computeGoalDistancesAll(char[][] map){
-        int gcount = goals.size();
-        int h = map.length;
-        int w = map[0].length;
-        distToAllGoal = new int [gcount][h][w];
-
-        //inital fill
-        for(int i = 0; i <gcount ; i++){
-            for(int j = 0; j <h ; j++){
-                for(int k = 0; k <w ; k++){
-                    distToAllGoal[i][j][k] = Integer.MAX_VALUE;
-                }
-            }
-        }
-
-        Queue<Point> q = new ArrayDeque<>();
-
-        // Start BFS from each goal
-        int currgoal= 0;
-        for (Point g : goals) {
-            distToAllGoal[currgoal][g.x][g.y] = 0;
-            q.add(g);
-
-            while (!q.isEmpty()) {
-                Point cur = q.poll();
-                int x = cur.x, y = cur.y;
-                int d = distToAllGoal[currgoal][x][y];
-
-                for (int[] dir : DIRS) {
-                    int nx = x + dir[0];
-                    int ny = y + dir[1];
-
-                    if (isWall(nx, ny, map)) continue;
-                    if (nx < 0 || ny < 0 || nx >= h || ny >= w) continue;
-
-                    // Update if shorter path found
-                    if (distToAllGoal[currgoal][nx][ny] > d + 1) {
-                        distToAllGoal[currgoal][nx][ny] = d + 1;
-                        q.add(new Point(nx, ny));
-                    }
-                }
-            }
-            currgoal++;
-        }
-
-
-    }
-    */
-
-
     //this is similar to commputeGoalDistances but instead of distances it computes PUSHES it takes to get to a goal
     private void computeGoalPushes(char[][] map) {
 
