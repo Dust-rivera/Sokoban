@@ -18,7 +18,6 @@ public class SokoBot {
     private int[][] distToGoal;
     private final int MAX_DIST = Integer.MAX_VALUE; // an integer used when initializing distances in distToGoal.
 
-    //RYAN'S ADD
     private int[][][] pushesToGoal; //an array of distance (in number of pushes) to get to a goal. considers deadlocks
     //stored values calculated using the second heuristic function
     private final Map<State, Integer> heuristicDP = new HashMap<>();
@@ -143,7 +142,9 @@ public class SokoBot {
     /** Represents a grid coordinate (x=row, y=col) */
     static class Point {
         final int row, col;
-        Point(int row, int col) { this.row = row; this.col = col; }
+        Point(int row, int col) {
+            this.row = row; this.col = col;
+        }
 
         @Override public boolean equals(Object o) {
             if (!(o instanceof Point)) return false;
@@ -164,10 +165,10 @@ public class SokoBot {
     private void findGoals(char[][] mapData, char[][] itemsData, int width, int height){
         for (int i = 0; i < height; i++){
             for (int j = 0; j < width; j++){
-                if (mapData[i][j] == '.'){
+                if (mapData[i][j] == '.'){ //Goals
                     goals.add(new Point(i, j));
                 }
-                if (itemsData[i][j] == '*' || itemsData[i][j] == '+'){
+                if (itemsData[i][j] == '*' || itemsData[i][j] == '+'){ //Boxes or Players on goals
                     goals.add(new Point(i, j));
                 }
             }
@@ -177,7 +178,7 @@ public class SokoBot {
 
     private State parseInitialState(char[][] itemsData, int width, int height){
         int row = 0, col = 0; //player pos
-        Set<Point> box_pos = new HashSet<>();
+        Set<Point> box_pos = new HashSet<>(); //boxes pos
 
         for (int i = 0; i < height; i++){
             for (int j = 0; j < width; j++){
@@ -185,7 +186,7 @@ public class SokoBot {
                     row = i;
                     col = j;
                 }
-                if (itemsData[i][j] == '$' || itemsData[i][j] == '*'){
+                if (itemsData[i][j] == '$' || itemsData[i][j] == '*'){ //Find boxes
                     box_pos.add(new Point(i, j));
                 }
             }
