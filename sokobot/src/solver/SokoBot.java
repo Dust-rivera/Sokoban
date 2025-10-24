@@ -53,12 +53,15 @@ public class SokoBot {
 
         Set<State> visited = new HashSet<>();
 
-
+        int count=-1;
         while (!pq.isEmpty()) {
+            count++;
             Node cur = pq.poll();
             //^ this is the best state according to heuristics and we pop this
             if (isGoal(cur.state)) {
+                System.out.println(count);
                 //end solving if we reached the goal
+
                 return cur.path; // success condition
             }
             if (!visited.add(cur.state)) continue;  //to avoid repetition
@@ -302,9 +305,13 @@ public class SokoBot {
 
 
     //THESE FUNCTIONS ARE USED FOR CHECKING CONDITIONS
-
     private boolean isWall(int row, int col, char[][] mapData){
-        return mapData[row][col] == '#'; //add bounds checking if needed
+
+        if ( row<0||col<0 || row>=mapData.length || col>=mapData[0].length){
+            return true;
+        }
+
+        return mapData[row][col] == '#';
     }
 
     //check if all boxes are contained by a goal
