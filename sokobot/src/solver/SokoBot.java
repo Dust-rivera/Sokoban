@@ -17,27 +17,27 @@ public class SokoBot {
 
   //Methods
   public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData) {
-		findGoals(mapData, itemsData, width, height);
+	findGoals(mapData, itemsData, width, height);
 
-		//precompute the distance-to-goal for every tile
-		computeGoalDistances(mapData);
+	//precompute the distance-to-goal for every tile
+	computeGoalDistances(mapData);
     computeGoalDistancesAll(mapData); // mini
 
-		//parse the starting state (player + boxes)
-		State start = parseInitialState(itemsData, width, height);
+	//parse the starting state (player + boxes)
+	State start = parseInitialState(itemsData, width, height);
 
-		//priority queue (GBFS) — expands the state with the lowest heuristic f
+	//priority queue (GBFS) — expands the state with the lowest heuristic f
     // and make a hash set to track visited states
-		PriorityQueue<Node> pq = new PriorityQueue<>();
-		pq.add(new Node(start, "", heuristic(start))); 
-		Set<State> visited = new HashSet<>();
+	PriorityQueue<Node> pq = new PriorityQueue<>();
+	pq.add(new Node(start, "", heuristic(start))); 
+	Set<State> visited = new HashSet<>();
 
-		// search loop
-  while (!pq.isEmpty()) {
-    Node cur = pq.poll(); // pop best node (lowest heuristic)
-    if (isGoal(cur.state)) {
-        return cur.path; // success condition
-           }
+	// search loop
+  	while (!pq.isEmpty()) {
+    	Node cur = pq.poll(); // pop best node (lowest heuristic)
+    	if (isGoal(cur.state)) {
+        	return cur.path; // success condition
+        }
     if (!visited.add(cur.state)) continue;  // skip if already explored
 
     for (Move mv : legalMoves(cur.state, mapData)) {
@@ -63,30 +63,27 @@ public class SokoBot {
     }
     // If no path found, return empty string 
     return "";
-	}
+}
 
 
-  /** Represents a grid coordinate (row, col) */
-  static class Point {
-    final int row, col;
+/** Represents a grid coordinate (x=row, y=col) */
+   static class Point {
+       final int x, y;
+       Point(int x, int y) { this.x = x; this.y = y; }
 
-    Point(int row, int col) {
-        this.row = row;
-        this.col = col;
-    }
 
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Point)) return false;
-        Point p = (Point) o;
-        return row == p.row && col == p.col;
-    }
+       @Override public boolean equals(Object o) {
+           if (!(o instanceof Point)) return false;
+           Point p = (Point)o;
+           return x == p.x && y == p.y;
+       }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(row, col);
-    }
-  }
+
+       @Override public int hashCode() {
+           return Objects.hash(x, y);
+       }
+   }
+
 
   /** Represents a full Sokoban configuration */
   static class State {
