@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ab7d5c01-f010-48fd-86f0-7c4145c10e46" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sokobot/src/reader/FileReader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sokobot/src/gui/GamePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/src/gui/GamePanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sokobot/src/solver/SokoBot$Move.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sokobot/src/solver/SokoBot$Node.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sokobot/src/solver/SokoBot$Point.class" beforeDir="false" />
