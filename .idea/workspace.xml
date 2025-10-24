@@ -5,15 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ab7d5c01-f010-48fd-86f0-7c4145c10e46" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/sokobot/src/gui/BotThread.class" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/src/gui/BotThread.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sokobot/src/gui/GameFrame.class" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/src/gui/GameFrame.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sokobot/src/gui/GamePanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/src/gui/GamePanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sokobot/src/gui/GamePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/src/gui/GamePanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sokobot/src/main/Driver.class" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/src/main/Driver.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sokobot/src/reader/FileReader.class" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/src/reader/FileReader.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sokobot/src/reader/MapData.class" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/src/reader/MapData.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sokobot/src/solver/SokoBot.class" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/src/solver/SokoBot.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sokobot/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/src/solver/SokoBot.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sokobot/maps/bench22.txt" beforeDir="false" afterPath="$PROJECT_DIR$/sokobot/maps/bench22.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,24 +16,49 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;ryanpeagle-rntp&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Dust-rivera/Sokoban.git&quot;,
+    &quot;accountId&quot;: &quot;60f501fd-77a8-4fc2-be43-2ba44b2228e9&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="34JqQuHcB2iZ3IrMOy0w4oaPzoL" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/Ryan Nathan/Text Files/.College/Y2T1/CSINTSY/MCO1/Sokoban"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Ryan Nathan/Text Files/.College/Y2T1/CSINTSY/MCO1/Sokoban&quot;
   }
-}]]></component>
+}</component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="MCO1" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="MCO1" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="ab7d5c01-f010-48fd-86f0-7c4145c10e46" name="Changes" comment="" />
@@ -50,5 +68,16 @@
       <updated>1760942010382</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
